@@ -6,7 +6,6 @@ import * as HttpsProxyAgent from 'https-proxy-agent';
 import * as fs from 'fs';
 import { join as joinPath } from 'path';
 import * as https from 'https';
-import * as url from 'url';
 
 
 class CancellationError extends Error {
@@ -101,13 +100,14 @@ export class GitignoreRepository {
 				file.write('\n');
 			}
 
-			const options: https.RequestOptions = url.parse(operation.file.url);
-			options.agent = getAgent(); // Proxy
-			options.headers = {
-				'User-Agent': userAgent
-			};
+			const options: https.RequestOptions = {
+				agent: getAgent(), // Proxy
+				headers: {
+					'User-Agent': userAgent
+				}
+			}
 
-			https.get(options, response => {
+			https.get(operation.file.url, options, response => {
 				response.pipe(file);
 
 				file.on('finish', () => {
